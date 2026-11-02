@@ -1,0 +1,32 @@
+# Simulates the 3-PC lab on one machine:
+#   docker compose up --build
+#   open http://localhost:8000
+# Scale workers with:  docker compose up --scale worker=5
+services:
+  coordinator:
+    build: .
+    image: minicluster-ml:latest
+    command: ["python", "-m", "minicluster.coordinator"]
+    ports:
+      - "8000:8000"   # web dashboard + REST API
+      - "9000:9000"   # worker TCP port (for real PCs joining from the LAN)
+    environment:
+      MINICLUSTER_CLUSTER_SECRET: ${MINICLUSTER_CLUSTER_SECRET:-change-me}
+      MINICLUSTER_API_TOKEN: ${MINICLUSTER_API_TOKEN:-}
+    volumes:
+      - minicluster-data:/data
+    restart: unless-stopped
+
+  worker:
+    image: minicluster-ml:latest
+    command: ["python", "-m", "minicluster.worker", "--coordinator", "coordinator", "--cores", "1"]
+    environment:
+      MINICLUSTER_CLUSTER_SECRET: ${MINICLUSTER_CLUSTER_SECRET:-change-me}
+    depends_on:
+      - coordinator
+    deploy:
+      replicas: 3
+    restart: unless-stopped
+
+volumes:
+  minicluster-data:

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MiniCluster ML</title>
+  <meta name="description" content="Web-based parallel & distributed machine-learning platform for lab PCs">
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="navbar">
+    <div class="nav-inner">
+      <div class="brand">
+        <img src="/assets/logo.svg" alt="" width="30" height="30">
+        <span class="brand-name">MiniCluster ML</span>
+      </div>
+      <button class="icon-btn menu-btn" id="menu-btn" aria-label="Menu">&#9776;</button>
+      <nav>
+        <a href="#/overview" data-route="overview">Overview</a>
+        <a href="#/new" data-route="new">New Job</a>
+        <a href="#/jobs" data-route="jobs">Jobs</a>
+        <a href="#/predict" data-route="predict">Predict</a>
+        <a href="#/logs" data-route="logs">Logs</a>
+        <a href="/docs" target="_blank" rel="noopener">API</a>
+      </nav>
+      <div id="conn" class="conn conn-off"><span class="dot"></span><span id="conn-text">Connecting...</span></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="topbar">
+      <h1 id="page-title">Cluster Overview</h1>
+      <div class="topbar-stats" id="topbar-stats"></div>
+    </div>
+
+    <!-- ============ OVERVIEW ============ -->
+    <section class="page" id="page-overview">
+      <div class="card strip" id="kpis"></div>
+      <div class="section-head"><h2>Current Job</h2></div>
+      <div class="card" id="active-job"></div>
+      <div class="section-head"><h2>Lab PCs</h2><span class="muted small">auto refresh (1s)</span></div>
+      <div class="card table-card" id="workers"></div>
+      <div class="section-head"><h2>Recent Activity</h2><a href="#/logs" class="small">open full log</a></div>
+      <div class="card log-card"><ul class="log" id="log-mini"></ul></div>
+    </section>
+
+    <!-- ============ NEW JOB ============ -->
+    <section class="page" id="page-new" hidden>
+      <div class="tabs" id="job-tabs">
+        <button data-tab="compute" class="active">Level 1 &middot; Distributed Compute</button>
+        <button data-tab="training">Level 2 &middot; Distributed ML Training</button>
+        <button data-tab="benchmark">Level 3 &middot; Speed-up Benchmark</button>
+      </div>
+
+      <div class="grid-form">
+        <form class="card form" id="form-compute" data-tab-panel="compute">
+          <h3>Scatter &rarr; Compute &rarr; Reduce</h3>
+          <p class="muted">The range 1..N is split into chunks. Idle workers pull chunks (dynamic load balancing), each PC splits its chunk again across its CPU cores, and the coordinator reduces the partial results.</p>
+          <label>Kernel
+            <select name="kernel">
+              <option value="square_sum">Square numbers (sum of squares)</option>
+              <option value="prime_count">Count prime numbers (CPU heavy)</option>
+              <option value="monte_carlo_pi">Estimate &pi; (Monte Carlo)</option>
+            </select>
+          </label>
+          <label>N (numbers to process)<input name="n" type="number" value="10000" min="1"></label>
+          <div class="row">
+            <label>Workers<input name="workers" type="number" value="3" min="1"></label>
+            <label>Chunks per worker<input name="chunks_per_worker" type="number" value="4" min="1"></label>
+          </div>
+          <label>Job name (optional)<input name="name" placeholder="e.g. Lab 1 - squares"></label>
+          <button class="btn primary" type="submit">Run Distributed Job</button>
+        </form>
+
+        <form class="card form" id="form-training" data-tab-panel="training" hidden>
+          <h3>Data-parallel model training</h3>
+          <div class="row">
+            <label>Dataset
+              <select name="dataset" id="dataset-select"></select>
+            </label>
+            <label id="rows-field">Rows<input name="rows" type="number" value="100000" min="100"></label>
+          </div>
+          <div class="row">
+            <label>Target column<select name="target" id="target-select"></select></label>
+            <label>Algorithm
+              <select name="model" id="model-select">
+                <option value="logistic_regression">Logistic Regression</option>
+                <option value="softmax_regression">Softmax Regression</option>
+                <option value="linear_regression">Linear Regression</option>
+              </select>
+            </label>
+          </div>
+          <label>Synchronisation strategy
+            <select name="strategy">
+              <option value="gradient_sync">Gradient sync (parameter server, exact)</option>
+              <option value="model_averaging">Model averaging (local SGD, less communication)</option>
+            </select>
+          </label>
+          <div class="row">
+            <label>Workers<input name="workers" type="number" value="3" min="1"></label>
+            <label>Epochs<input name="epochs" type="number" value="30" min="1"></label>
+          </div>
+          <div class="row">
+            <label>Learning rate<input name="lr" type="number" value="0.5" step="any" min="0"></label>
+            <label>Momentum<input name="momentum" type="number" value="0.9" step="any" min="0" max="0.99"></label>
+          </div>
+          <div class="row">
+            <label>Batch size <span class="muted">(model avg.)</span><input name="batch_size" type="number" value="256" min="1"></label>
+            <label>L2 regularisation<input name="l2" type="number" value="0" step="any" min="0"></label>
+          </div>
+          <label>Job name (optional)<input name="name" placeholder="e.g. Smart Admission Predictor"></label>
+          <button class="btn primary" type="submit">Start Training</button>
+          <details class="upload">
+            <summary>Upload your own CSV dataset</summary>
+            <p class="muted small">Numeric feature columns + one target column. Header row required.</p>
+            <div class="row"><input type="file" id="csv-file" accept=".csv"><button class="btn" type="button" id="csv-upload">Upload</button></div>
+          </details>
+        </form>
+
+        <form class="card form" id="form-benchmark" data-tab-panel="benchmark" hidden>
+          <h3>Measure speed-up &amp; efficiency</h3>
+          <p class="muted">Runs the same workload on 1, 2, &hellip; N workers and plots <code>Speedup = T(1) / T(p)</code> and <code>Efficiency = Speedup / p</code>.</p>
+          <label>Workload
+            <select name="base">
+              <option value="primes">Count primes up to 2,000,000 (compute bound)</option>
+              <option value="pi">Monte Carlo &pi; with 20,000,000 darts</option>
+              <option value="train">Logistic regression, 1,000,000 students, 40 epochs</option>
+              <option value="train-small">Logistic regression, 20,000 students, 40 epochs (communication bound)</option>
+            </select>
+          </label>
+          <label>Max workers <span class="muted">(blank = all online)</span><input name="max_workers" type="number" min="1" placeholder="all"></label>
+          <button class="btn primary" type="submit">Run Benchmark</button>
+        </form>
+
+        <div class="card explainer" id="explainer"></div>
+      </div>
+    </section>
+
+    <!-- ============ JOBS ============ -->
+    <section class="page" id="page-jobs" hidden>
+      <div class="card table-card">
+        <table class="table" id="jobs-table">
+          <thead><tr><th>Job</th><th>Type</th><th>Status</th><th>Progress</th><th>Result</th><th>Duration</th><th>Created</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="jobs-empty" hidden>No jobs yet &mdash; <a href="#/new">submit one</a>.</div>
+      </div>
+    </section>
+
+    <!-- ============ JOB DETAIL ============ -->
+    <section class="page" id="page-job" hidden>
+      <div id="job-detail"></div>
+    </section>
+
+    <!-- ============ PREDICT ============ -->
+    <section class="page" id="page-predict" hidden>
+      <div class="grid-form">
+        <form class="card form" id="form-predict">
+          <h3>Use a trained model</h3>
+          <label>Model (completed training job)<select id="predict-job"></select></label>
+          <div id="predict-fields" class="predict-fields"></div>
+          <button class="btn primary" type="submit">Predict</button>
+        </form>
+        <div class="card" id="predict-result"><p class="muted">Pick a model, enter a student's data and press Predict.</p></div>
+      </div>
+    </section>
+
+    <!-- ============ LOGS ============ -->
+    <section class="page" id="page-logs" hidden>
+      <div class="card log-card full"><ul class="log" id="log-full"></ul></div>
+    </section>
+  </main>
+  <footer class="footer muted small">Workers connect to TCP port <b id="worker-port">9000</b> <span id="version"></span></footer>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<dialog id="token-dialog">
+  <form method="dialog" id="token-form">
+    <h3>API token required</h3>
+    <p class="muted">This coordinator is protected. Enter the value of <code>MINICLUSTER_API_TOKEN</code>.</p>
+    <input id="token-input" type="password" autocomplete="off">
+    <button class="btn primary">Save</button>
+  </form>
+</dialog>
+<script src="/assets/charts.js"></script>
+<script src="/assets/app.js"></script>
+</body>
+</html>

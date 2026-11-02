@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minicluster-ml"
+version = "1.0.0"
+description = "Turn a handful of lab PCs into one web-based parallel & distributed machine-learning platform."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["distributed-computing", "machine-learning", "parallel-computing", "education", "fastapi", "sockets"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Framework :: FastAPI",
+    "Intended Audience :: Education",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "numpy>=1.24",
+    "psutil>=5.9",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.5"]
+screenshots = ["playwright>=1.40"]
+
+[project.scripts]
+minicluster-coordinator = "minicluster.coordinator.__main__:main"
+minicluster-worker = "minicluster.worker.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["minicluster*"]
+
+[tool.setuptools.package-data]
+minicluster = ["web/*.html", "web/assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]

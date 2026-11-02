@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="hdr" x1="0" x2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8b95b8"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="640" rx="18" fill="#0b1020"/>
+
+  <!-- Browser -->
+  <rect x="380" y="24" width="240" height="56" rx="10" fill="#172140" stroke="#23305a"/>
+  <text x="500" y="49" text-anchor="middle" fill="#e6e9f5" font-size="16" font-weight="600">Browser / Python client</text>
+  <text x="500" y="68" text-anchor="middle" fill="#8b95b8" font-size="12">dashboard · REST · WebSocket</text>
+  <line x1="500" y1="80" x2="500" y2="118" stroke="#8b95b8" stroke-width="2" marker-end="url(#arr)" marker-start="url(#arr)"/>
+  <text x="510" y="104" fill="#8b95b8" font-size="11">HTTP :8000</text>
+
+  <!-- Coordinator -->
+  <rect x="150" y="120" width="700" height="210" rx="14" fill="#121a2f" stroke="#6366f1" stroke-width="1.5"/>
+  <rect x="150" y="120" width="700" height="34" rx="14" fill="url(#hdr)"/>
+  <rect x="150" y="140" width="700" height="14" fill="url(#hdr)"/>
+  <text x="500" y="143" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">COORDINATOR  (FastAPI + asyncio)</text>
+
+  <g font-size="12">
+    <rect x="170" y="170" width="150" height="62" rx="8" fill="#172140" stroke="#23305a"/>
+    <text x="245" y="194" text-anchor="middle" fill="#e6e9f5" font-weight="600">REST API + WS</text>
+    <text x="245" y="214" text-anchor="middle" fill="#8b95b8">auth · validation</text>
+
+    <rect x="335" y="170" width="150" height="62" rx="8" fill="#172140" stroke="#23305a"/>
+    <text x="410" y="194" text-anchor="middle" fill="#e6e9f5" font-weight="600">Job Manager</text>
+    <text x="410" y="214" text-anchor="middle" fill="#8b95b8">FIFO queue · runners</text>
+
+    <rect x="500" y="170" width="150" height="62" rx="8" fill="#172140" stroke="#23305a"/>
+    <text x="575" y="194" text-anchor="middle" fill="#e6e9f5" font-weight="600">Dispatcher</text>
+    <text x="575" y="214" text-anchor="middle" fill="#8b95b8">load balance · fail-over</text>
+
+    <rect x="665" y="170" width="165" height="62" rx="8" fill="#172140" stroke="#23305a"/>
+    <text x="747" y="194" text-anchor="middle" fill="#e6e9f5" font-weight="600">Cluster Manager</text>
+    <text x="747" y="214" text-anchor="middle" fill="#8b95b8">TCP server · heartbeats</text>
+
+    <rect x="170" y="248" width="150" height="62" rx="8" fill="#172140" stroke="#23305a"/>
+    <text x="245" y="272" text-anchor="middle" fill="#e6e9f5" font-weight="600">SQLite</text>
+    <text x="245" y="292" text-anchor="middle" fill="#8b95b8">job history · models</text>
+
+    <rect x="335" y="248" width="150" height="62" rx="8" fill="#172140" stroke="#23305a"/>
+    <text x="410" y="272" text-anchor="middle" fill="#e6e9f5" font-weight="600">Datasets</text>
+    <text x="410" y="292" text-anchor="middle" fill="#8b95b8">generator · CSV upload</text>
+
+    <rect x="500" y="248" width="330" height="62" rx="8" fill="#172140" stroke="#f59e0b"/>
+    <text x="665" y="272" text-anchor="middle" fill="#f59e0b" font-weight="600">Reduce / Aggregate</text>
+    <text x="665" y="292" text-anchor="middle" fill="#8b95b8">∑ partial results · ∑ gradients → W ← W − lr·g</text>
+  </g>
+
+  <!-- TCP links -->
+  <g stroke="#06b6d4" stroke-width="2" fill="none">
+    <path d="M500 330 L500 360 L180 360 L180 398" marker-end="url(#arr)" marker-start="url(#arr)"/>
+    <path d="M500 330 L500 398" marker-end="url(#arr)"/>
+    <path d="M500 360 L820 360 L820 398" marker-end="url(#arr)"/>
+  </g>
+  <text x="512" y="352" fill="#06b6d4" font-size="11">TCP :9000 · framed JSON + NumPy payloads</text>
+
+  <!-- Workers -->
+  <g font-size="12">
+    <g transform="translate(60 400)">
+      <rect width="240" height="210" rx="12" fill="#121a2f" stroke="#23305a"/>
+      <text x="120" y="28" text-anchor="middle" fill="#e6e9f5" font-size="15" font-weight="700">PC-01 · Worker</text>
+      <text x="16" y="54" fill="#8b95b8">threads</text>
+      <rect x="16" y="62" width="64" height="26" rx="6" fill="#172140"/><text x="48" y="80" text-anchor="middle" fill="#e6e9f5">receiver</text>
+      <rect x="88" y="62" width="70" height="26" rx="6" fill="#172140"/><text x="123" y="80" text-anchor="middle" fill="#e6e9f5">heartbeat</text>
+      <rect x="166" y="62" width="58" height="26" rx="6" fill="#172140"/><text x="195" y="80" text-anchor="middle" fill="#e6e9f5">executor</text>
+      <text x="16" y="112" fill="#8b95b8">multiprocessing pool (1 per core)</text>
+      <g fill="#06b6d4" opacity=".85"><rect x="16" y="120" width="46" height="22" rx="4"/><rect x="68" y="120" width="46" height="22" rx="4"/><rect x="120" y="120" width="46" height="22" rx="4"/><rect x="172" y="120" width="52" height="22" rx="4"/></g>
+      <text x="16" y="166" fill="#8b95b8">shared memory</text>
+      <rect x="16" y="174" width="208" height="24" rx="6" fill="#8b5cf6" opacity=".35"/><text x="120" y="191" text-anchor="middle" fill="#e6e9f5">data shard 1/3</text>
+    </g>
+    <g transform="translate(380 400)">
+      <rect width="240" height="210" rx="12" fill="#121a2f" stroke="#23305a"/>
+      <text x="120" y="28" text-anchor="middle" fill="#e6e9f5" font-size="15" font-weight="700">PC-02 · Worker</text>
+      <text x="16" y="54" fill="#8b95b8">threads</text>
+      <rect x="16" y="62" width="64" height="26" rx="6" fill="#172140"/><text x="48" y="80" text-anchor="middle" fill="#e6e9f5">receiver</text>
+      <rect x="88" y="62" width="70" height="26" rx="6" fill="#172140"/><text x="123" y="80" text-anchor="middle" fill="#e6e9f5">heartbeat</text>
+      <rect x="166" y="62" width="58" height="26" rx="6" fill="#172140"/><text x="195" y="80" text-anchor="middle" fill="#e6e9f5">executor</text>
+      <text x="16" y="112" fill="#8b95b8">multiprocessing pool (1 per core)</text>
+      <g fill="#06b6d4" opacity=".85"><rect x="16" y="120" width="46" height="22" rx="4"/><rect x="68" y="120" width="46" height="22" rx="4"/><rect x="120" y="120" width="46" height="22" rx="4"/><rect x="172" y="120" width="52" height="22" rx="4"/></g>
+      <text x="16" y="166" fill="#8b95b8">shared memory</text>
+      <rect x="16" y="174" width="208" height="24" rx="6" fill="#8b5cf6" opacity=".35"/><text x="120" y="191" text-anchor="middle" fill="#e6e9f5">data shard 2/3</text>
+    </g>
+    <g transform="translate(700 400)">
+      <rect width="240" height="210" rx="12" fill="#121a2f" stroke="#23305a"/>
+      <text x="120" y="28" text-anchor="middle" fill="#e6e9f5" font-size="15" font-weight="700">PC-03 · Worker</text>
+      <text x="16" y="54" fill="#8b95b8">threads</text>
+      <rect x="16" y="62" width="64" height="26" rx="6" fill="#172140"/><text x="48" y="80" text-anchor="middle" fill="#e6e9f5">receiver</text>
+      <rect x="88" y="62" width="70" height="26" rx="6" fill="#172140"/><text x="123" y="80" text-anchor="middle" fill="#e6e9f5">heartbeat</text>
+      <rect x="166" y="62" width="58" height="26" rx="6" fill="#172140"/><text x="195" y="80" text-anchor="middle" fill="#e6e9f5">executor</text>
+      <text x="16" y="112" fill="#8b95b8">multiprocessing pool (1 per core)</text>
+      <g fill="#06b6d4" opacity=".85"><rect x="16" y="120" width="46" height="22" rx="4"/><rect x="68" y="120" width="46" height="22" rx="4"/><rect x="120" y="120" width="46" height="22" rx="4"/><rect x="172" y="120" width="52" height="22" rx="4"/></g>
+      <text x="16" y="166" fill="#8b95b8">shared memory</text>
+      <rect x="16" y="174" width="208" height="24" rx="6" fill="#8b5cf6" opacity=".35"/><text x="120" y="191" text-anchor="middle" fill="#e6e9f5">data shard 3/3</text>
+    </g>
+  </g>
+</svg>
